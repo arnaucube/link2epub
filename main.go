@@ -15,12 +15,13 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
-const tmpDir = "tmp"
+const tmpDir = "link2epubtmpdir"
 
 func main() {
 	// var typeFlag string
 	linkFlag := flag.String("l", "", "Link to download")
 	typeFlag := flag.String("type", "mobi", "Type of epub. Available: mobi (default), epub")
+	titleFlag := flag.String("title", "", "Title is automatically getted from article, if want to change it, use this flag")
 
 	flag.Parse()
 
@@ -69,6 +70,17 @@ func main() {
 		// replace in the article.Content the current img by new filename
 		article.Content = strings.Replace(article.Content, string(img[4]), filename, -1)
 	}
+
+	if *titleFlag != "" {
+		article.Title = *titleFlag
+	}
+
+	// add title to content
+	article.Content = `
+		<h1>` + article.Title + `</h1>
+		<h2 style="text-align:right;">` + article.Byline + `</h2>
+		<br>
+	` + article.Content
 
 	// store html file
 	filename := article.Title + " - " + article.Byline
