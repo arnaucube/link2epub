@@ -15,22 +15,32 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
+const version = "v0_20221002"
 const tmpDir = "link2epubtmpdir"
 
 func main() {
-	// var typeFlag string
+	versionFlag := flag.Bool("v", false, "version")
 	linkFlag := flag.String("l", "", "Link to download")
 	typeFlag := flag.String("type", "mobi", "Type of epub. Available: mobi (default), epub")
 	titleFlag := flag.String("title", "", "Title is automatically getted from article, if want to change it, use this flag")
 
 	flag.Parse()
 
+	fmt.Println("link2epub version:", version)
+	if *versionFlag {
+		os.Exit(0)
+	}
+
 	if *typeFlag != "mobi" && *typeFlag != "epub" {
 		log.Fatal("not valid type")
 	}
 	err := os.Mkdir(tmpDir, os.ModePerm)
 	if err != nil {
-		log.Fatalf("error creating tmp dir %s: %v\n", tmpDir, err)
+		log.Printf("error creating tmp dir %s: %v\nRemoving it and continuing.", tmpDir, err)
+		err = os.RemoveAll(tmpDir)
+		if err != nil {
+			log.Fatalf("err removing %s: %v\n", tmpDir, err)
+		}
 	}
 
 	// get link
